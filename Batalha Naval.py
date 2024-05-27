@@ -3,61 +3,127 @@ from colorama import init, Fore, Back, Style
 import functools
 init()
 
-Carrier = 5
-Dread = 4
-Cruiser = 2
-Sub = 1
 simbol = ('✖','✦')
 
-grid = {'A': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'B': [0,'~','~','~','~','~','~','~','~','~','~'], 
-        'C': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'D': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'E': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'F': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'G': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'H': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'I': [0,'~','~','~','~','~','~','~','~','~','~'],
-        'J': [0,'~','~','~','~','~','~','~','~','~','~']}
+grid = {'A': [x for x in range(10)],
+        'B': [x for x in range(10)], 
+        'C': [x for x in range(10)],
+        'D': [x for x in range(10)],
+        'E': [x for x in range(10)],
+        'F': [x for x in range(10)],
+        'G': [x for x in range(10)],
+        'H': [x for x in range(10)],
+        'I': [x for x in range(10)],
+        'J': [x for x in range(10)]}
 
 # ===========================================================================================================
 # Funções que fazem a máquina colocar todos os barcos em posições aleatórias
 # ===========================================================================================================
 
-def validate_pos(funcao):
+# Decorador que gera o restante dos barcos
+def ship_complete(funcao):
     @functools.wraps(funcao)
-    def teste(grid):
+    def auto_completer():
         nome_linha = ['A','B','C','D','E','F','G','H','I','J']
-        pos_init = []
-        contador = 0
+        ships = {'Carrier': [], 'Dread': [], 'Destroyer': [], 'Sub1': [], 'Sub2':[]}
+        
+        for i in ships:
+            row, column = funcao()
+            x = nome_linha[row]
+            match i:
+                case 'Carrier':
 
-        while contador < 5:
-            x, y = funcao()
-            pos_linha = nome_linha[x]
-            if grid[pos_linha][y] not in pos_init:
-                pos_init.append(f'{pos_linha}/{y}')
-                contador += 1
-    
-        return pos_init
+                    # Essa variavél serve para determinar se o teste será feito primeiro na vertical ou diagonal
+                    # 1 para vertical e 2 para horizontal
+                    decision = randint(1,2)
 
-    return teste
+                    if decision == 1:
+                        ships = vertical_generator(5, row, x, column, ships, i)
 
-@validate_pos
-def posicao_barcos():
-    linha = randint(1,10)
-    coluna = randint(1,10)
+                    elif decision == 2:
+                        ships = horizontal_generator(5, row, x, column, ships, i)
+                
+                case 'Dread':
+                    decision = randint(1,2)
 
-    return linha, coluna
-            
-def restante_do_barco(inicial):
-    barcos = {'Carrier':[], 'Dread':[],'Cruiser':[], 'Sub':[]}
+                    if decision == 1:
+                        ships = vertical_generator(3, row, x, column, ships, i)
+
+                    elif decision == 2:
+                        ships = horizontal_generator(3, row, x, column, ships, i)
+                
+                case 'Destroyer':
+                    decision = randint(1,2)
+
+                    if decision == 1:
+                        ships = vertical_generator(2, row, x, column, ships, i)
+
+                    elif decision == 2:
+                        ships = horizontal_generator(2, row, x, column, ships, i)
+                
+                case 'Sub1':
+                    ships[i].append(f'{x}/{column}')
+
+                case 'Sub2':
+                    ships[i].append(f'{x}/{column}')
+        
+        return ships
+
+    return auto_completer
+
+
+# Função que irá gerar as posições iniciais dos barcos
+@ship_complete
+def ship_init():
+    x = randint(0,9)
+    y = randint(0,9)
+
+    return x, y
+
+
+# Gera os barcos na vertical
+def vertical_generator(size, row, x, column, ships, i):
     nome_linha = ['A','B','C','D','E','F','G','H','I','J']
+    if (L := row + size) < 10:
+        for linhas in range(row, L+1):
+            ships[i].append(f'{nome_linha[linhas]}/{column}')
+    elif (L := row - size) >= 0:
+             for linhas in range(L, row+1):
+                ships[i].append(f'{nome_linha[linhas]}/{column}')
+    else:
+        if (C := column + size) < 10:
+            for colunas in range(column, C+1):
+                    ships[i].append(f'{x}/{colunas}')
 
-    if (l:= nome_linha.index(inicial[0][0]) - 5) >= 0:
-        pass
+        elif (C := column - size) >= 0:
+            for colunas in range(C, column+1):
+                ships[i].append(f'{x}/{colunas}')
+    
+    return ships
 
+# Gera os barcos na horizontal
+def horizontal_generator(size, row, x, column, ships, i):
+    nome_linha = ['A','B','C','D','E','F','G','H','I','J']
+    if (C := column + size) < 10:
+        for colunas in range(column, C+1):
+            ships[i].append(f'{x}/{colunas}')
 
-    return
+    elif (C := column - size) >= 0:
+        for colunas in range(C, column+1):
+            ships[i].append(f'{x}/{colunas}')
+    else:
+        if (L := row + size) < 10:
+            for linhas in range(row, L+1):
+                ships[i].append(f'{nome_linha[linhas]}/{column}')
+        elif (L := row - size) >= 0:
+             for linhas in range(L, row+1):
+                ships[i].append(f'{nome_linha[linhas]}/{column}')
+
+    return ships
+ 
 # ===========================================================================================================
 
-print(posicao_barcos(grid))
+barcos = ship_init()
+
+print(barcos)
+
