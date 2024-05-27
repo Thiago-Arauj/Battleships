@@ -5,16 +5,16 @@ init()
 
 simbol = ('✖','✦')
 
-grid = {'A': [x for x in range(10)],
-        'B': [x for x in range(10)], 
-        'C': [x for x in range(10)],
-        'D': [x for x in range(10)],
-        'E': [x for x in range(10)],
-        'F': [x for x in range(10)],
-        'G': [x for x in range(10)],
-        'H': [x for x in range(10)],
-        'I': [x for x in range(10)],
-        'J': [x for x in range(10)]}
+grid = {'A': [x for x in range(1,11)],
+        'B': [x for x in range(1,11)], 
+        'C': [x for x in range(1,11)],
+        'D': [x for x in range(1,11)],
+        'E': [x for x in range(1,11)],
+        'F': [x for x in range(1,11)],
+        'G': [x for x in range(1,11)],
+        'H': [x for x in range(1,11)],
+        'I': [x for x in range(1,11)],
+        'J': [x for x in range(1,11)]}
 
 # ===========================================================================================================
 # Funções que fazem a máquina colocar todos os barcos em posições aleatórias
@@ -29,7 +29,7 @@ def ship_complete(funcao):
         
         for i in ships:
             row, column = funcao()
-            x = nome_linha[row]
+            x = nome_linha[row-1]
             match i:
                 case 'Carrier':
 
@@ -75,8 +75,8 @@ def ship_complete(funcao):
 # Função que irá gerar as posições iniciais dos barcos
 @ship_complete
 def ship_init():
-    x = randint(0,9)
-    y = randint(0,9)
+    x = randint(1,10)
+    y = randint(1,10)
 
     return x, y
 
@@ -85,18 +85,18 @@ def ship_init():
 def vertical_generator(size, row, x, column, ships, i):
     nome_linha = ['A','B','C','D','E','F','G','H','I','J']
     if (L := row + size) < 10:
-        for linhas in range(row, L+1):
+        for linhas in range(row, L):
             ships[i].append(f'{nome_linha[linhas]}/{column}')
     elif (L := row - size) >= 0:
-             for linhas in range(L, row+1):
+             for linhas in range(L, row):
                 ships[i].append(f'{nome_linha[linhas]}/{column}')
     else:
         if (C := column + size) < 10:
-            for colunas in range(column, C+1):
+            for colunas in range(column, C):
                     ships[i].append(f'{x}/{colunas}')
 
         elif (C := column - size) >= 0:
-            for colunas in range(C, column+1):
+            for colunas in range(C, column):
                 ships[i].append(f'{x}/{colunas}')
     
     return ships
@@ -105,18 +105,18 @@ def vertical_generator(size, row, x, column, ships, i):
 def horizontal_generator(size, row, x, column, ships, i):
     nome_linha = ['A','B','C','D','E','F','G','H','I','J']
     if (C := column + size) < 10:
-        for colunas in range(column, C+1):
+        for colunas in range(column, C):
             ships[i].append(f'{x}/{colunas}')
 
     elif (C := column - size) >= 0:
-        for colunas in range(C, column+1):
+        for colunas in range(C, column):
             ships[i].append(f'{x}/{colunas}')
     else:
         if (L := row + size) < 10:
-            for linhas in range(row, L+1):
+            for linhas in range(row, L):
                 ships[i].append(f'{nome_linha[linhas]}/{column}')
         elif (L := row - size) >= 0:
-             for linhas in range(L, row+1):
+             for linhas in range(L, row):
                 ships[i].append(f'{nome_linha[linhas]}/{column}')
 
     return ships
