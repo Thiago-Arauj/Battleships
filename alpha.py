@@ -25,47 +25,50 @@ def ship_complete(funcao):
     @functools.wraps(funcao)
     def auto_completer():
         nome_linha = ['A','B','C','D','E','F','G','H','I','J']
-        ships = {'Carrier': [], 'Dread': [], 'Destroyer': [], 'Sub1': [], 'Sub2':[]}
-        
-        for i in ships:
-            row, column = funcao()
-            x = nome_linha[row-1]
-            match i:
-                case 'Carrier':
+        while True:
+            ships = {'Carrier': [], 'Dread': [], 'Destroyer': [], 'Sub1': [], 'Sub2':[]}
+            for i in ships:
+                row, column = funcao()
+                x = nome_linha[row-1]
+                match i:
+                    case 'Carrier':
 
-                    # Essa variavél serve para determinar se o teste será feito primeiro na vertical ou diagonal
-                    # 1 para vertical e 2 para horizontal
-                    decision = randint(1,2)
+                        # Essa variavél serve para determinar se o teste será feito primeiro na vertical ou diagonal
+                        # 1 para vertical e 2 para horizontal
+                        decision = randint(1,2)
 
-                    if decision == 1:
-                        ships = vertical_generator(5, row, x, column, ships, i)
+                        if decision == 1:
+                            ships = vertical_generator(5, row, x, column, ships, i)
 
-                    elif decision == 2:
-                        ships = horizontal_generator(5, row, x, column, ships, i)
-                
-                case 'Dread':
-                    decision = randint(1,2)
+                        elif decision == 2:
+                            ships = horizontal_generator(5, row, x, column, ships, i)
+                    
+                    case 'Dread':
+                        decision = randint(1,2)
 
-                    if decision == 1:
-                        ships = vertical_generator(3, row, x, column, ships, i)
+                        if decision == 1:
+                            ships = vertical_generator(3, row, x, column, ships, i)
 
-                    elif decision == 2:
-                        ships = horizontal_generator(3, row, x, column, ships, i)
-                
-                case 'Destroyer':
-                    decision = randint(1,2)
+                        elif decision == 2:
+                            ships = horizontal_generator(3, row, x, column, ships, i)
+                    
+                    case 'Destroyer':
+                        decision = randint(1,2)
 
-                    if decision == 1:
-                        ships = vertical_generator(2, row, x, column, ships, i)
+                        if decision == 1:
+                            ships = vertical_generator(2, row, x, column, ships, i)
 
-                    elif decision == 2:
-                        ships = horizontal_generator(2, row, x, column, ships, i)
-                
-                case 'Sub1':
-                    ships[i].append(f'{x}/{column}')
+                        elif decision == 2:
+                            ships = horizontal_generator(2, row, x, column, ships, i)
+                    
+                    case 'Sub1':
+                        ships[i].append(f'{x}/{column}')
 
-                case 'Sub2':
-                    ships[i].append(f'{x}/{column}')
+                    case 'Sub2':
+                        ships[i].append(f'{x}/{column}')
+
+            if intersect_check(ships):
+                break
         
         return ships
 
@@ -79,6 +82,35 @@ def ship_init():
     y = randint(1,10)
 
     return x, y
+
+def intersect_check(ships):
+    a = set(ships['Carrier'])
+    b = set(ships['Dread'])
+    c = set(ships['Destroyer'])
+    d = set(ships['Sub1'])
+    e = set(ships['Sub2'])
+
+    total_check = 0
+    Test = [a,b,c,d,e]
+
+    for i in Test:
+        each_check = 0
+        for j in Test:
+            if i == j:
+                pass
+            else:
+                if i.isdisjoint(j):
+                    each_check += 1
+        
+        if each_check == 4:
+            total_check += 1
+    
+    if total_check == 5:
+        return True
+    else:
+        return False
+            
+
 
 
 # Gera os barcos na vertical
@@ -137,6 +169,14 @@ def grid_show(grid,barcos):
             pos = f'{linha}/{coluna}'
             
             if pos in barcos['Carrier']:
+                print('X', end=' ')
+            elif pos in barcos['Dread']:
+                print('X', end=' ')
+            elif pos in barcos['Destroyer']:
+                print('X', end=' ')
+            elif pos in barcos['Sub1']:
+                print('X', end=' ')
+            elif pos in barcos['Sub2']:
                 print('X', end=' ')
             else:
                 print('~', end=' ')
