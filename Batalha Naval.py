@@ -223,7 +223,6 @@ def check_sink(barcos):
 
 
 barcos = ship_init()
-print(barcos)
 no_repeat = 0
 Wanna_play = 1
 Partidas = 0
