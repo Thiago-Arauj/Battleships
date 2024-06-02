@@ -222,6 +222,7 @@ while Wanna_play > 0:
     info = 0
     Wanna_play = int(input(Fore.WHITE + 'Quer jogar?\n[1] Sim!\n[0] Não\n'))
     contador = 0
+    plays = []
 
     if Wanna_play == 1:
         
@@ -238,31 +239,37 @@ while Wanna_play > 0:
 
         while True:
             pos = input('Digite um par de coordenadas nesse modelo "A/5"\n').upper()
-            if '0' in pos and '1' not in pos:
-                print(Fore.RED + 'Posição inválida, por favor tente novamente!')
-                pass
-            else:
-                system('cls')
-                is_in(pos,barcos,grid)
+            if pos not in plays:
+                plays.append(pos)
+                if '0' in pos and '1' not in pos:
+                    print(Fore.RED + 'Posição inválida, por favor tente novamente!')
+                    pass
+                else:
+                    system('cls')
+                    is_in(pos,barcos,grid)
 
-                counter = check_sink(barcos)
-                contador += 1
+                    counter = check_sink(barcos)
+                    contador += 1
 
-                if len(counter) == 5:
-                    print(Fore.YELLOW + f'Parabéns soldado, você afundou todos eles em {contador} jogadas!')
-                    break
-                elif len(counter) > no_repeat:
-                    print(Fore.YELLOW + f'Parabéns soldado, já afundou {len(counter)} navio(s) do inimigo')
-                    print(Fore.RED + 'Eram eles')
-                    for barco in counter:
-                        print(Fore.RED + f'{barco}')
-                
-                
-                no_repeat = len(counter)
+                    if len(counter) == 5:
+                        print(Fore.YELLOW + f'Parabéns soldado, você afundou todos eles em {contador} jogadas!')
+                        break
+                    elif len(counter) > no_repeat:
+                        print(Fore.YELLOW + f'Parabéns soldado, já afundou {len(counter)} navio(s) do inimigo')
+                        print(Fore.RED + 'Eram eles')
+                        for barco in counter:
+                            print(Fore.RED + f'{barco}')
+                    
+                    
+                    no_repeat = len(counter)
             
-    
-    Partidas += 1
+            else:
+                print('Você já jogou nessa posição, tente de novo!')
+
+        Partidas += 1
+
     info = (Partidas, contador)
+    
     Record.append(info)
 else:
     print(Fore.WHITE + 'Tudo bem! Aqui está seu histórico')
