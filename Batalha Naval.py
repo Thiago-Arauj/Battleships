@@ -14,6 +14,7 @@ def ship_complete(funcao):
     def auto_completer():
         nome_linha = ['A','B','C','D','E','F','G','H','I','J']
         while True:
+            # Gera os barcos a partir de posições iniciais aleatórias
             ships = {'Carrier': [], 'Dread': [], 'Destroyer': [], 'Sub1': [], 'Sub2':[]}
             for i in ships:
                 row, column = funcao()
@@ -72,6 +73,7 @@ def ship_init():
     return x, y
 
 def intersect_check(ships):
+    # Checa se os barcos estão se cruzando e se sim faz todo o processo de geração acontecer de novo, checar linha 59
     a = set(ships['Carrier'])
     b = set(ships['Dread'])
     c = set(ships['Destroyer'])
@@ -143,6 +145,7 @@ def horizontal_generator(size, row, x, column, ships, i):
  
 # ===========================================================================================================
 
+# Função para imprimir todo o grid e é o decorador a ser utilizado
 def grid_show(funcao):
     @functools.wraps(funcao)
     def wrapping(*args, **kwargs):
@@ -170,9 +173,10 @@ def grid_show(funcao):
     
     return wrapping
 
+
 @grid_show
 def is_in(pos,barcos,grid):
-
+    # Verifica se algum barco foi atingido
     simbol = ('✖','✦')
     x, y = pos.split('/')
     y = int(y)
@@ -194,7 +198,7 @@ def is_in(pos,barcos,grid):
 
     
 def check_sink(barcos):
-
+    # Checa se algum barco foi afundado e armazena os afundados numa lista
     doomsday_counter = []
 
     for nome in barcos:
@@ -203,75 +207,75 @@ def check_sink(barcos):
     
     return doomsday_counter
 
-     
-
-
-    
-
 # ===========================================================================================================
 
-
-barcos = ship_init()
-no_repeat = 0
+# Inicia variavéis que serão utilizadas de maneira fixa durante o jogo
 Wanna_play = 1
 Partidas = 0
 Record = []
 
-
 while Wanna_play > 0:
+    # Inicia variavéis que irão mudar de partida pra partida
     info = 0
     Wanna_play = int(input(Fore.WHITE + 'Quer jogar?\n[1] Sim!\n[0] Não\n'))
     contador = 0
+    no_repeat = 0
     plays = []
 
     if Wanna_play == 1:
+
+        # Faz o reset das variavéis barco e grid
+        barcos = ship_init()
+
+        grid = {'A': [x for x in range(11)],
+                'B': [x for x in range(11)], 
+                'C': [x for x in range(11)],
+                'D': [x for x in range(11)],
+                'E': [x for x in range(11)],
+                'F': [x for x in range(11)],
+                'G': [x for x in range(11)],
+                'H': [x for x in range(11)],
+                'I': [x for x in range(11)],
+                'J': [x for x in range(11)]}
         
-        grid = {'A': [0,1,2,3,4,5,6,7,8,9,10],
-                'B': [0,1,2,3,4,5,6,7,8,9,10], 
-                'C': [0,1,2,3,4,5,6,7,8,9,10],
-                'D': [0,1,2,3,4,5,6,7,8,9,10],
-                'E': [0,1,2,3,4,5,6,7,8,9,10],
-                'F': [0,1,2,3,4,5,6,7,8,9,10],
-                'G': [0,1,2,3,4,5,6,7,8,9,10],
-                'H': [0,1,2,3,4,5,6,7,8,9,10],
-                'I': [0,1,2,3,4,5,6,7,8,9,10],
-                'J': [0,1,2,3,4,5,6,7,8,9,10]}
+        
 
         while True:
+            # As ações do jogo em si
             pos = input('Digite um par de coordenadas nesse modelo "A/5"\n').upper()
-            if pos not in plays:
+            if pos not in plays: # Verifica se alguma jogada estaria se repetindo
                 plays.append(pos)
-                if '0' in pos and '1' not in pos:
+                if '0' in pos and '1' not in pos: # Impede que se jogue na posição 0 pois isso atrapalharia o jogo
                     print(Fore.RED + 'Posição inválida, por favor tente novamente!')
                     pass
-                else:
+                else: # Esse bloco é responsavel por limpar o terminal e imprimir a próxima tela
                     system('cls')
                     is_in(pos,barcos,grid)
 
                     counter = check_sink(barcos)
                     contador += 1
-
-                    if len(counter) == 5:
+                    
+                    if len(counter) == 5: # Checa se todos os barcos foram afundados e se não foram checar linha 261
                         print(Fore.YELLOW + f'Parabéns soldado, você afundou todos eles em {contador} jogadas!')
                         break
-                    elif len(counter) > no_repeat:
+                    elif len(counter) > no_repeat: # Caso nem todos tenham sido afundados imprime quais já foram sempre que um novo for afundado
                         print(Fore.YELLOW + f'Parabéns soldado, já afundou {len(counter)} navio(s) do inimigo')
                         print(Fore.RED + 'Eram eles')
                         for barco in counter:
                             print(Fore.RED + f'{barco}')
                     
-                    
                     no_repeat = len(counter)
-            
+                
             else:
                 print('Você já jogou nessa posição, tente de novo!')
-
+                
+            
         Partidas += 1
 
+    # Bloco responsável por atualizar os dados para o histórico        
     info = (Partidas, contador)
-    
     Record.append(info)
-else:
+else: # Ao final do jogo imrpime todos os resultados!
     print(Fore.WHITE + 'Tudo bem! Aqui está seu histórico')
     for partida in Record:
         print(Fore.WHITE + f'Partida {partida[0]} terminou em {partida[1]} jogadas!')
