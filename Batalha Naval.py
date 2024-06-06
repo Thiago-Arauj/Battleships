@@ -1,5 +1,6 @@
+
 from random import randint
-from colorama import init, Fore, Back
+from colorama import init, Fore, Back, Style
 import os
 import functools
 init(autoreset=True)
@@ -13,8 +14,8 @@ init(autoreset=True)
 
 def ship_complete(funcao):
     @functools.wraps(funcao)
-    def auto_completer():
-        nome_linha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    def auto_completer(nome_linha):
+        
         while True:
             # Gera os barcos a partir de posições iniciais aleatórias
             ships = {'Carrier': [], 'Dread': [],
@@ -30,34 +31,28 @@ def ship_complete(funcao):
                         decision = randint(1, 2)
 
                         if decision == 1:
-                            ships = vertical_generator(
-                                5, row, x, column, ships, i)
+                            ships = vertical_generator(5, row, x, column, ships, i, nome_linha)
 
                         elif decision == 2:
-                            ships = horizontal_generator(
-                                5, row, x, column, ships, i)
+                            ships = horizontal_generator(5, row, x, column, ships, i, nome_linha)
 
                     case 'Dread':
                         decision = randint(1, 2)
 
                         if decision == 1:
-                            ships = vertical_generator(
-                                3, row, x, column, ships, i)
+                            ships = vertical_generator(3, row, x, column, ships, i, nome_linha)
 
                         elif decision == 2:
-                            ships = horizontal_generator(
-                                3, row, x, column, ships, i)
+                            ships = horizontal_generator(3, row, x, column, ships, i, nome_linha)
 
                     case 'Destroyer':
                         decision = randint(1, 2)
 
                         if decision == 1:
-                            ships = vertical_generator(
-                                2, row, x, column, ships, i)
+                            ships = vertical_generator(2, row, x, column, ships, i, nome_linha)
 
                         elif decision == 2:
-                            ships = horizontal_generator(
-                                2, row, x, column, ships, i)
+                            ships = horizontal_generator(2, row, x, column, ships, i, nome_linha)
 
                     case 'Sub1':
                         ships[i].append(f'{x}/{column}')
@@ -112,8 +107,8 @@ def intersect_check(ships):
 
 
 # Gera os barcos na vertical
-def vertical_generator(size, row, x, column, ships, i):
-    nome_linha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+def vertical_generator(size, row, x, column, ships, i,nome_linha):
+    
     if (L := row + size) < 10:
         for linhas in range(row, L):
             ships[i].append(f'{nome_linha[linhas]}/{column}')
@@ -134,8 +129,8 @@ def vertical_generator(size, row, x, column, ships, i):
 # Gera os barcos na horizontal
 
 
-def horizontal_generator(size, row, x, column, ships, i):
-    nome_linha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+def horizontal_generator(size, row, x, column, ships, i,nome_linha):
+    
     if (C := column + size) < 10:
         for colunas in range(column, C):
             ships[i].append(f'{x}/{colunas}')
@@ -177,10 +172,10 @@ def grid_show(funcao):
                     print(Back.BLUE + '~', end=Back.BLUE + ' ')
                 elif type(grid[linha][coluna]) == str:
                     if grid[linha][coluna] == simbol[0]:
-                        print(Fore.YELLOW + grid[linha]
+                        print(Back.BLUE + Fore.YELLOW + grid[linha]
                               [coluna], end=Back.BLUE + ' ')
                     elif grid[linha][coluna] == simbol[1]:
-                        print(Fore.RED + grid[linha]
+                        print(Back.BLUE + Fore.RED + grid[linha]
                               [coluna], end=Back.BLUE + ' ')
 
             print()
@@ -225,6 +220,28 @@ def check_sink(barcos):
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def validate_pos(pos, nome_linha, plays):
+
+    x, y = pos.split('/')
+    y = int(y)
+
+    if x not in nome_linha:
+        print(Style.BRIGHT + Fore.RED + 'Posição inválida, selecione uma linha entra A e J!')
+        return False
+    
+    elif y > 10 or y < 1:
+        print(Style.BRIGHT + Fore.RED + 'Posição inválida, selecione uma coluna entre 1 e 10')
+        return False
+    
+    elif pos in plays:
+        print(Style.BRIGHT + Fore.RED + 'Posição inválida, você já jogou nesta posição!')
+        return False
+    
+    else:
+        return True
+
+    
+
 # ===========================================================================================================
 
 
@@ -232,19 +249,27 @@ def clear_terminal():
 Wanna_play = 1
 Partidas = 0
 Record = []
+nome_linha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 while Wanna_play > 0:
     # Inicia variavéis que irão mudar de partida pra partida
     info = 0
-    Wanna_play = int(input(Fore.WHITE + 'Quer jogar?\n[1] Sim!\n[0] Não\n'))
     contador = 0
     no_repeat = 0
     plays = []
 
+    while True:
+        Wanna_play = int(input(Fore.WHITE + 'Quer jogar?\n[1] Sim!\n[0] Não\n'))
+        if Wanna_play not in [0,1]:
+            print(Fore.WHITE + 'Por favor, selecione uma opção válida!')
+        else: 
+            break
+
+
     if Wanna_play == 1:
 
         # Faz o reset das variavéis barco e grid
-        barcos = ship_init()
+        barcos = ship_init(nome_linha)
 
         grid = {'A': [x for x in range(11)],
                 'B': [x for x in range(11)],
@@ -259,37 +284,36 @@ while Wanna_play > 0:
 
         while True:
             # As ações do jogo em si
-            pos = input(
-                'Digite um par de coordenadas nesse modelo "A/5"\n').upper()
-            if pos not in plays:  # Verifica se alguma jogada estaria se repetindo
+
+            while True:
+                pos = input('Digite um par de coordenadas nesse modelo "A/5"\n').upper()
+                try:
+                    a,b = pos.split('/')
+                except ValueError:
+                    print(Style.BRIGHT + Fore.LIGHTBLUE_EX + 'Por favor, digite a posição no formato correto de Letra/Número')
+                else:
+                    break
+    
+            if validate_pos(pos,nome_linha, plays):  # Verifica se alguma jogada estaria se repetindo
                 plays.append(pos)
-                if '0' in pos and '1' not in pos:  # Impede que se jogue na posição 0 pois isso atrapalharia o jogo
-                    print(Fore.RED + 'Posição inválida, por favor tente novamente!')
-                    pass
-                else:  # Esse bloco é responsavel por limpar o terminal e imprimir a próxima tela
-                    clear_terminal()
-                    is_in(pos, barcos, grid)
+                clear_terminal()
+                is_in(pos, barcos, grid)
 
-                    counter = check_sink(barcos)
-                    contador += 1
+                counter = check_sink(barcos)
+                contador += 1
 
-                    # Checa se todos os barcos foram afundados e se não foram checar linha 261
-                    if len(counter) == 5:
-                        print(
-                            Fore.YELLOW + f'Parabéns soldado, você afundou todos eles em {contador} jogadas!')
+                # Checa se todos os barcos foram afundados e se não foram checar linha 261
+                if len(counter) == 5:
+                        print(Fore.YELLOW + f'Parabéns soldado, você afundou todos eles em {contador} jogadas!')
                         break
-                    # Caso nem todos tenham sido afundados imprime quais já foram sempre que um novo for afundado
-                    elif len(counter) > no_repeat:
-                        print(
-                            Fore.YELLOW + f'Parabéns soldado, já afundou {len(counter)} navio(s) do inimigo')
-                        print(Fore.RED + 'Eram eles')
-                        for barco in counter:
-                            print(Fore.RED + f'{barco}')
+                # Caso nem todos tenham sido afundados imprime quais já foram sempre que um novo for afundado
+                elif len(counter) > no_repeat:
+                    print(Fore.YELLOW + f'Parabéns soldado, já afundou {len(counter)} navio(s) do inimigo')
+                    print(Fore.RED + 'Eram eles')
+                    for barco in counter:
+                        print(Fore.RED + f'{barco}')
 
-                    no_repeat = len(counter)
-
-            else:
-                print('Você já jogou nessa posição, tente de novo!')
+                no_repeat = len(counter)
 
         Partidas += 1
 
