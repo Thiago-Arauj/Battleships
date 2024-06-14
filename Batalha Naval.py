@@ -5,6 +5,7 @@ import os
 import functools
 init(autoreset=True)
 
+
 # ===========================================================================================================
 # Funções que fazem a máquina colocar todos os barcos em posições aleatórias
 # ===========================================================================================================
@@ -220,25 +221,29 @@ def check_sink(barcos):
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+
 def validate_pos(pos, nome_linha, plays):
-
-    x, y = pos.split('/')
-    y = int(y)
-
-    if x not in nome_linha:
-        print(Style.BRIGHT + Fore.RED + 'Posição inválida, selecione uma linha entra A e J!')
+    try:
+        x, y = pos.split('/')
+        y = int(y)
+    except ValueError:
+        print(Style.BRIGHT + Fore.RED + 'Posição inválida, posições válidas são no formato LETRA/NÚMERO!')
         return False
-    
-    elif y > 10 or y < 1:
-        print(Style.BRIGHT + Fore.RED + 'Posição inválida, selecione uma coluna entre 1 e 10')
-        return False
-    
-    elif pos in plays:
-        print(Style.BRIGHT + Fore.RED + 'Posição inválida, você já jogou nesta posição!')
-        return False
-    
     else:
-        return True
+        if x not in nome_linha:
+            print(Style.BRIGHT + Fore.RED + 'Posição inválida, selecione uma linha entra A e J!')
+            return False
+        
+        elif y > 10 or y < 1:
+            print(Style.BRIGHT + Fore.RED + 'Posição inválida, selecione uma coluna entre 1 e 10')
+            return False
+        
+        elif pos in plays:
+            print(Style.BRIGHT + Fore.RED + 'Posição inválida, você já jogou nesta posição!')
+            return False
+        
+        else:
+            return True
 
     
 
